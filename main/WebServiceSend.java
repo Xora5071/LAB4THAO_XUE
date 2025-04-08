@@ -42,28 +42,28 @@ public class WebServiceSend {
      */
     public static void main(String[] args) {
         try {
-            // Step 1: Create a Pizza object with initial order details
+            // CRUD Create a Pizza object with initial order details
             Pizza pizza = new Pizza("Pepperoni", "Medium", 14.99, new String[]{"Pepperoni", "Mushroom", "Sausage"});
 
-            // Step 2: Serialize the Pizza object into JSON format using Gson
+            // Serialize the Pizza object into JSON format using Gson
             Gson gson = new Gson();
             String jsonPayload = gson.toJson(pizza);
 
-            // Step 3: Generate an HMAC (SHA256) for the JSON payload
+            // Generate an HMAC (SHA256) for the JSON payload
             String hmac = generateHMAC(jsonPayload, SECRET_KEY);
 
-            // Step 4: Configure and send the HTTP POST request with the JSON payload and HMAC
+            // Configure and send the HTTP POST request with the JSON payload and HMAC
             HttpURLConnection con = getHttpURLConnection(hmac);
             OutputStream os = con.getOutputStream();
             os.write(jsonPayload.getBytes()); // Write the JSON payload to the request body
             os.flush(); // Ensure all data is sent
             os.close();
 
-            // Step 5: Read the response code from the server
+            // Read the response code from the server
             int responseCode = con.getResponseCode();
             System.out.println("Response Code: " + responseCode);
 
-            // Step 6: Read the server's response from the input stream
+            // Read the server's response from the input stream
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
             StringBuilder response = new StringBuilder();
@@ -72,7 +72,7 @@ public class WebServiceSend {
             }
             in.close(); // Close the input stream
 
-            // Step 7: Print the response from the server
+            // Print the response from the server
             System.out.println("Response: " + response);
 
         } catch (Exception e) {
@@ -91,17 +91,17 @@ public class WebServiceSend {
      * @throws Exception If an error occurs during HMAC generation.
      */
     private static String generateHMAC(String data, String key) throws Exception {
-        // Step 1: Create a Mac instance configured with the HmacSHA256 algorithm
+        // Create a Mac instance configured with the HmacSHA256 algorithm
         Mac mac = Mac.getInstance("HmacSHA256");
 
-        // Step 2: Initialize the Mac instance with the provided secret key
+        // Initialize the Mac instance with the provided secret key
         SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), "HmacSHA256");
         mac.init(secretKeySpec);
 
-        // Step 3: Compute the HMAC value for the input data
+        // Compute the HMAC value for the input data
         byte[] hmacBytes = mac.doFinal(data.getBytes());
 
-        // Step 4: Encode the HMAC as a Base64 string for transmission
+        // Encode the HMAC as a Base64 string for transmission
         return Base64.getEncoder().encodeToString(hmacBytes);
     }
 
@@ -114,20 +114,20 @@ public class WebServiceSend {
      * @throws IOException If there is an error while opening the connection.
      */
     private static HttpURLConnection getHttpURLConnection(String hmac) throws IOException {
-        // Step 1: Create a URL object representing the web service endpoint
+        // Create a URL object representing the web service endpoint
         URL url = new URL(SERVICE_URL);
 
-        // Step 2: Open a connection to the URL
+        // Open a connection to the URL
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
-        // Step 3: Set the request method to POST
+        // Set the request method to POST
         con.setRequestMethod("POST");
 
-        // Step 4: Set request headers, including the Content-Type and the HMAC
+        // Set request headers, including the Content-Type and the HMAC
         con.setRequestProperty("Content-Type", "application/json"); // Indicate JSON payload
         con.setRequestProperty("HMAC", hmac); // Add the HMAC to the headers for integrity verification
 
-        // Step 5: Enable input/output streams for sending and receiving data
+        // Enable input/output streams for sending and receiving data
         con.setDoOutput(true);
 
         return con; // Return the configured HttpURLConnection instance

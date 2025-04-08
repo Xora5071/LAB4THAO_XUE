@@ -23,7 +23,7 @@ import java.util.Base64;
 @SuppressWarnings("ALL")
 public class WebServiceRecv {
 
-    // Shared secret key for HMAC functionality
+    //Shared secret key for HMAC functionality
     private static final String SECRET_KEY = "shared_secret_key";
 
     /**
@@ -62,15 +62,15 @@ public class WebServiceRecv {
         public void handle(HttpExchange exchange) throws IOException {
             // Ensure the request is a POST request
             if ("POST".equals(exchange.getRequestMethod())) {
-                // Step 1: Read the JSON body from the request using InputStream
+                // Read the JSON body from the request using InputStream
                 InputStream inputStream = exchange.getRequestBody();
                 byte[] jsonBytes = inputStream.readAllBytes(); // Read the request body as bytes
                 String json = new String(jsonBytes); // Convert bytes into a string representation
 
-                // Step 2: Extract the HMAC from the request headers
+                // Extract the HMAC from the request headers
                 String receivedHMAC = exchange.getRequestHeaders().getFirst("HMAC");
 
-                // Step 3: Generate HMAC for the received payload using the shared secret key
+                // Generate HMAC for the received payload using the shared secret key
                 String generatedHMAC;
                 try {
                     generatedHMAC = generateHMAC(json, SECRET_KEY); // Generate the HMAC
@@ -85,11 +85,11 @@ public class WebServiceRecv {
                     return;
                 }
 
-                // Step 4: Print the received and generated HMAC values for debugging
+                // Print the received and generated HMAC values for debugging
                 System.out.println("Received HMAC (SHA): " + receivedHMAC);
                 System.out.println("Generated HMAC (SHA): " + generatedHMAC);
 
-                // Step 5: Verify the integrity of the payload by comparing HMAC values
+                // Verify the integrity of the payload by comparing HMAC values
                 if (generatedHMAC.equals(receivedHMAC)) {
                     // HMAC verification passed
                     System.out.println("HMAC Verified! Payload integrity confirmed.");
@@ -98,27 +98,27 @@ public class WebServiceRecv {
                     Gson gson = new Gson();
                     Pizza pizza = gson.fromJson(json, Pizza.class);
 
-                    // Step 6: Print the details of the received pizza order
+                    // Print the details of the received pizza order
                     System.out.println("Received Pizza order:");
                     System.out.println("Name: " + pizza.getName());
                     System.out.println("Size: " + pizza.getSize());
                     System.out.println("Price: $" + pizza.getPrice());
                     System.out.println("Toppings: " + String.join(", ", pizza.getToppings()));
 
-                    // Step 7: Update the pizza order using setter methods
+                    // Update the pizza order using setter methods
                     pizza.setName("Hawaiian");
                     pizza.setSize("Large");
                     pizza.setPrice(16.99);
                     pizza.setToppings(new String[]{"Pineapple", "Ham", "Bacon"});
 
-                    // Step 8: Print the updated pizza order details
+                    // Print the updated pizza order
                     System.out.println("Updated Pizza order:");
                     System.out.println("Name: " + pizza.getName());
                     System.out.println("Size: " + pizza.getSize());
                     System.out.println("Price: $" + pizza.getPrice());
                     System.out.println("Toppings: " + String.join(", ", pizza.getToppings()));
 
-                    // Step 9: Send a success response to the client
+                    // Send a success response to the client
                     String response = "HMAC Verified! Order received.";
                     exchange.sendResponseHeaders(200, response.getBytes().length); // HTTP 200 OK
                     OutputStream os = exchange.getResponseBody();
@@ -156,14 +156,14 @@ public class WebServiceRecv {
          */
         private String generateHMAC(String data, String key) throws IOException {
             try {
-                // Step 1: Create an HMAC instance using SHA256 algorithm
+                // Create an HMAC instance using SHA256 algorithm
                 Mac mac = Mac.getInstance("HmacSHA256");
-                // Step 2: Initialize the HMAC with the provided secret key
+                // Initialize the HMAC with the provided secret key
                 SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), "HmacSHA256");
                 mac.init(secretKeySpec);
-                // Step 3: Compute the HMAC for the input data
+                // Compute the HMAC for the input data
                 byte[] hmacBytes = mac.doFinal(data.getBytes());
-                // Step 4: Return the HMAC as a Base64-encoded string
+                // Return the HMAC data
                 return Base64.getEncoder().encodeToString(hmacBytes);
             } catch (Exception e) {
                 throw new IOException("Error while generating HMAC", e);
